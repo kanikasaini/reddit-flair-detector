@@ -1,0 +1,8 @@
+flask
+praw
+pickle
+sklearn
+config
+gensim
+gunicorn
+xgboost

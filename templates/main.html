@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<style>
+form {
+    margin: auto;
+    width: 50%;
+}
+.result {
+    margin: auto;
+    width: 50%;
+    border: 1px solid #ccc;
+}
+.reddit {
+	background-color: rgba(0, 0, 0, 0.8);
+	width: 100%;
+	height: 150px;
+}
+</style>
+<head>
+    <title>Reddit Flair Detector</title>
+</head>
+<div align="center">
+	<div class="reddit">
+		<img src="{{ url_for('static', filename = 'css/images/icons/logo.png') }}" width="150">
+	</div>
+	<h1> Reddit Flair Detector</h1>
+</div>
+<form action="{{ url_for('main') }}" method="POST">
+    <fieldset>
+        <legend>Predict the flair</legend>
+        Post URL:
+        <input name="posturl" type="string" required>
+        <br>
+        <br>
+        <input type="submit">
+    </fieldset>
+</form>
+<br>
+<div class="result" align="center">
+    {% if result %}
+        {% for variable, value in original_input.items() %}
+            <b>{{ variable }}</b> : {{ value }}
+        {% endfor %}
+        <br>
+        <br> Predicted flair of the post:
+           <p style="font-size:30px">{{ result }}</p>
+    {% endif %}
+</div>
+</html>
