@@ -27,7 +27,7 @@ form {
 	<div class="reddit">
 		<img src="{{ url_for('static', filename = 'css/images/icons/logo.png') }}" width="150">
 	</div>
-	<h1> Reddit Flair Detector</h1>
+	<h3> Reddit Flair Detector</h3>
 </div>
 <form action="{{ url_for('main') }}" method="POST">
     <fieldset>
@@ -47,7 +47,14 @@ form {
         {% endfor %}
         <br>
         <br> Predicted flair of the post:
-           <p style="font-size:30px">{{ result }}</p>
+           <p style="font-size:20px">{{ result }}</p>
     {% endif %}
+</div>
+
+
+<div style="margin-top: 100px" align="center">
+	<h5> Some Interesting Analysis </h5>
+	<img src="{{ url_for('static', filename = 'css/images/icons/upvote.png') }}" width="50%">
+	<img src="{{ url_for('static', filename = 'css/images/icons/comment.png') }}" width="50%">	
 </div>
 </html>
