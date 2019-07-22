@@ -30,38 +30,64 @@ def main():
 							   user_agent=config.user_agent)
 
 
-		submission = reddit.submission(url=posturl)
-		d = {}
-		d['title'] = submission.title
-		d['author'] = submission.author.name
-		d['time'] = submission.created_utc
-		d['distinguished'] = submission.distinguished
-		d['over_18'] = submission.over_18
-		d['permalink'] = submission.permalink
-		d['score'] = submission.score
-		d['upvote_ratio'] = submission.upvote_ratio
-		d['selftext'] = submission.selftext
-		submission.comments.replace_more()
-		d['comments'] = []
-		for c in submission.comments.list():
-			d['comments'].append(c.body)
+		try:
+			submission = reddit.submission(url=posturl)
+			d = {}
+			d['title'] = submission.title
+			d['author'] = submission.author.name
+			d['time'] = submission.created_utc
+			d['distinguished'] = submission.distinguished
+			d['over_18'] = submission.over_18
+			d['permalink'] = submission.permalink
+			d['score'] = submission.score
+			d['upvote_ratio'] = submission.upvote_ratio
+			d['selftext'] = submission.selftext
+			submission.comments.replace_more()
+			d['comments'] = []
+			for c in submission.comments.list():
+				d['comments'].append(c.body)
 
 
-		documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(common_texts)]
-		model1 = Doc2Vec(documents, vector_size=5, window=2, min_count=1, workers=4)
-		model2 = Doc2Vec(documents, vector_size=1, window=2, min_count=1, workers=4)
-		x_test = []
-		x = []
-		x.append(d['score'])
-		x.append(d['upvote_ratio'])
-		for i in model1.infer_vector(d['selftext'].split(" ")):
-			x.append(i)
-		x_test.append(x)
-		prediction = model.predict(x_test)[0]
-		return flask.render_template('main.html',
-		                             original_input={'post url':posturl,},
-		                             result=flair[prediction],
-		                             )
+			documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(common_texts)]
+			model1 = Doc2Vec(documents, vector_size=100, window=12, min_count=1, workers=4)
+			model2 = Doc2Vec(documents, vector_size=1, window=2, min_count=1, workers=4)
+			x_test = []
+			x = []
+			x.append(d['score'])
+			x.append(d['upvote_ratio'])
+			for i in model1.infer_vector(d['selftext'].split(" ")):
+				x.append(i)
+			for i in model1.infer_vector(d['title'].split(" ")):
+				x.append(i)
+			for i in model1.infer_vector(d['author'].split(" ")):
+				x.append(i)
+			
+			x.append(d['time'])
+			if(d['over_18']=='False'):
+				x.append(0)
+			else:
+				x.append(1)
+
+			x.append(model2.infer_vector(d['permalink']))
+			comments = []
+			for j in d['comments']:
+				for k in j.split(" "):
+					comments.append(k)
+
+			for i in model1.infer_vector(comments):
+				x.append(i)
+
+			x_test.append(x)
+			prediction = model.predict(x_test)[0]
+			return flask.render_template('main.html',
+			                             original_input={'post url':posturl,},
+			                             result=flair[prediction],
+			                             )
+		except:
+			return flask.render_template('main.html',
+			                             original_input={'post url':posturl,},
+			                             result="Invalid URL",
+			                             )
 
 #
 
